@@ -16,6 +16,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         final ListView listView = findViewById(R.id.listView);
         final TextAdapter adapter = new TextAdapter();
-
+        readInfo();
         adapter.setData(list);
         listView.setAdapter(adapter);
 
@@ -75,6 +82,53 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
+
+    }
+    ///Evertime activity is paused, information will be saved
+    @Override
+    protected void onPause(){
+        super.onPause();
+        saveInfo();
+    }
+
+    ///to save the information
+    private void saveInfo(){
+        try {
+            File file = new File(this.getFilesDir(),"saved");
+            FileOutputStream fOut = new FileOutputStream(file);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fOut));
+
+            for(int i = 0; i<list.size(); i++){
+                bw.write(list.get(i));
+                bw.newLine();
+            }
+
+            bw.close();
+            fOut.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    ///to read the information
+    private void readInfo(){
+        File file = new File(this.getFilesDir(),"saved");
+        if(!file.exists()){
+            return;
+        }
+        try {
+            FileInputStream is = new FileInputStream(file);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line = reader.readLine();
+            while (line!=null){
+                list.add(line);
+                line = reader.readLine();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
     }
 
